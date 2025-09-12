@@ -1,23 +1,30 @@
-const staticCacheName = 'site-static-v1';
+const staticCacheName = 'site-static-v2';
 const assets = [
-  '/',
-  '/index.html',
-  '/js/app.js',
-  '/js/ui.js',
-  '/js/materialize.min.js',
-  '/css/style.css',
-  '/css/materialize.min.css',
-  '/img/dish.png'
+  './',
+  './index.html', //correct
+  './js/app.js', //cor
+  './js/ui.js', //correct
+  './js/materialize.min.js', //corr
+  './css/styles.css', //corr
+  './css/materialize.min.css', //corr
+  './img/dish.png'//corr 
 ];
 
 self.addEventListener('install', evt => {
   console.log('Service worker installed');
   evt.waitUntil(
-    caches.open(staticCacheName).then(cache => {
-      console.log('Caching assets...');
-      return cache.addAll(assets)
-        .then(() => console.log('Assets cached'))
-        .catch(err => console.error('Cache addAll failed:', err));
+    caches.open(staticCacheName).then(async cache => {
+    
+    for(let asset of assets){
+      try {
+        await cache.add(asset);
+        console.log('Cache assets', asset);
+      } catch (error) {
+         console.error('failed assets', asset, error);
+      }
+
+    }  
+
     })
   );
 });
@@ -25,23 +32,24 @@ self.addEventListener('install', evt => {
 
 // Activate
 self.addEventListener('activate', evt => {
-  console.log('Service worker activated');
+  //Updating the versioning of the cache 
+
   evt.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
-        keys
-          .filter(key => key !== staticCacheName)
-          .map(key => caches.delete(key))
-      );
+        keys.filter(key => key !== staticCacheName).map(key => caches.delete(key))
+      )
     })
   );
+   
 });
 
 // Fetch
 self.addEventListener('fetch', evt => {
   evt.respondWith(
-    caches.match(evt.request).then(cacheRes => {
-      return cacheRes || fetch(evt.request);
-    })
-  );
+  caches.match(evt.request).then(cachesMatch => {
+    return cachesMatch || fetch(evt.request); //if it is matching we will return the match otherwise normal fetch request that user requested
+
+  })
+)
 });
