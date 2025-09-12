@@ -1,4 +1,4 @@
-const staticCacheName = 'site-static';
+const staticCacheName = 'site-static-v1';
 const assets = [
   '/',
   '/index.html',
@@ -10,29 +10,38 @@ const assets = [
   '/img/dish.png'
 ];
 
-
-// install service worker
 self.addEventListener('install', evt => {
-    console.log('service worker has been installed');
-    evt.waitUntil(
-     // As install is asynchronous and lasted for few second but we have to cache the things so it needs to wait so using waitUntil
-        caches.open(staticCacheName).then(cache => {
-        console.log('caching cell assets');
-        cache.addAll(assets);
+  console.log('Service worker installed');
+  evt.waitUntil(
+    caches.open(staticCacheName).then(cache => {
+      console.log('Caching assets...');
+      return cache.addAll(assets)
+        .then(() => console.log('Assets cached'))
+        .catch(err => console.error('Cache addAll failed:', err));
     })
-    )
-})
+  );
+});
 
-//activating service worker 
+
+// Activate
 self.addEventListener('activate', evt => {
-    console.log('Service worker has been activated');
-})
+  console.log('Service worker activated');
+  evt.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys
+          .filter(key => key !== staticCacheName)
+          .map(key => caches.delete(key))
+      );
+    })
+  );
+});
 
-//Listening fetch events 
+// Fetch
 self.addEventListener('fetch', evt => {
-    evt.respondWith(
+  evt.respondWith(
     caches.match(evt.request).then(cacheRes => {
       return cacheRes || fetch(evt.request);
     })
   );
-})
+});
