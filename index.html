@@ -107,15 +107,34 @@
       </div>
     </form>
   </div>
-  <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js")
-      .then(reg => console.log("SW registered:", reg))
-      .catch(err => console.log("SW failed:", err));
-  }
+ <!-- firebase connection -->
+ <!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-firestore-compat.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+    const firebaseConfig = {
+    apiKey: "AIzaSyD-mugDKUDiB8r0lMWtzWIqNNfp6W8K_jU",
+    authDomain: "food-ninja-a18f9.firebaseapp.com",
+    projectId: "food-ninja-a18f9",
+    storageBucket: "food-ninja-a18f9.firebasestorage.app",
+    messagingSenderId: "316027580503",
+    appId: "1:316027580503:web:8c35f69871ee2beb273312"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Make db available globally so db.js can access it
+  window.db = db;
 </script>
 
+
   <script src="/js/ui.js"></script>
+  <script src="/js/db.js"></script>
   <script src="/js/app.js"></script>
 </body>
 </html>
