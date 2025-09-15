@@ -15,17 +15,15 @@ const assets = [
   
 ];
 
+
 //cache limit size 
-const casheLimitSize = (name, size) =>  {
+const cacheLimitSize = (name, size) => {
   caches.open(name).then(cache => {
-    cache.keys().then(keys => {
-      if(keys.length > size){
-        cache.delete(keys[0]).then(casheLimitSize(name,size)); //yaha galti ki thi cache me se delte karna naki caches se
-      }
+    cache.keys().then(key => {
+      if(key.length > size) cache.delete(key[0]).then(cacheLimitSize(name, size));
     })
   })
 }
-
 
 self.addEventListener('install', evt => {
   console.log('Service worker installed');
@@ -61,9 +59,9 @@ self.addEventListener('activate', evt => {
    
 });
 
-// Fetch
+// Fetch(Mainly for APis)
 self.addEventListener('fetch', evt => {
-  /*
+  
   evt.respondWith(
   caches.match(evt.request).then(cachesMatch => {
     //if it is matching we will return the match otherwise normal fetch request that user requested
@@ -73,23 +71,24 @@ self.addEventListener('fetch', evt => {
 
     .then(fetchRespon => {
       return caches.open(dynamicCacheName).then(cache => {
-        cache.put(evt.request.url, fetchRespon.clone())
-        casheLimitSize(dynamicCacheName, 2);
-        return fetch(evt.request);
-      })
-    }) 
+        cache.put(evt.request, fetchRespon.clone())
+        cacheLimitSize(dynamicCacheName, 2);
+        return fetchRespon;
+      });
+    });
 
   }).catch(() => {
     //we applied this condition because everytime whatever user request in offline mode we returning one page.so, whether user is requesting image,css we are
     //always delivering fallback of contact.html file only that's why we applied this condition
-    if(evt.request.url.indexOf('.html')){
-      caches.match('./pages/fallback.html') //ye miss kar rha tha fallback me error catch se hi chalega
+    if(evt.request.url.indexOf('.html' > -1)){
+      return caches.match('./pages/fallback.html') //ye miss kar rha tha fallback me error catch se hi chalega and it should be return
     }
+    
 
   })
     
 )
-  */
+  
 
 
 
